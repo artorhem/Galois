@@ -237,6 +237,8 @@ void prTopological(Graph& graph) {
 }
 
 void prResidual(Graph& graph) {
+  galois::StatTimer prTimer("PageRankTime");
+  prTimer.start();
   DeltaArray delta;
   delta.allocateInterleaved(graph.size());
   ResidualArray residual;
@@ -244,8 +246,6 @@ void prResidual(Graph& graph) {
 
   initNodeDataResidual(graph, delta, residual);
   computeOutDeg(graph);
-  galois::StatTimer prTimer;
-  prTimer.start();
   computePRResidual(graph, delta, residual);
   prTimer.stop();
 }
