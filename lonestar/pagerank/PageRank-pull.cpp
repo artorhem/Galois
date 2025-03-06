@@ -263,8 +263,11 @@ int main(int argc, char** argv) {
             << "WARNING: this program assumes that " << filename
             << " contains transposed representation\n\n"
             << "Reading graph: " << filename << std::endl;
-
+  galois::StatTimer readTime("GraphReadTime");
+  readTime.start();
   galois::graphs::readGraph(transposeGraph, filename);
+  readTime.stop();
+  std::cout << "Read time: " << readTime.get_usec() << "us\n";
   std::cout << "Read " << transposeGraph.size() << " nodes, "
             << transposeGraph.sizeEdges() << " edges\n";
 

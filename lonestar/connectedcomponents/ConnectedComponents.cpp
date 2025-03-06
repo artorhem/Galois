@@ -705,7 +705,11 @@ void run() {
   Algo algo;
   Graph graph;
 
+  galois::StatTimer readTimer("GraphReadingTime");
+  readTimer.start();
   algo.readGraph(graph);
+  readTimer.stop();
+  std::cout << "Read the graph in " << readTimer.get_usec() << "us\n";
   std::cout << "Read " << graph.size() << " nodes\n";
 
   initialize(graph);

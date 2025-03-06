@@ -396,7 +396,11 @@ int main(int argc, char** argv) {
   GNode source, report;
 
   std::cout << "Reading from file: " << filename << std::endl;
+  galois::StatTimer readTime("GraphReadingTime");
+  readTime.start();
   galois::graphs::readGraph(graph, filename);
+  readTime.stop();
+  std::cout <<"Read time: " << readTime.get_usec() << "us\n";
   std::cout << "Read " << graph.size() << " nodes, " << graph.sizeEdges()
             << " edges" << std::endl;
 
