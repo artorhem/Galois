@@ -705,12 +705,15 @@ void run() {
   Algo algo;
   Graph graph;
 
-  galois::StatTimer readTimer("GraphReadingTime");
+  galois::StatTimer readTimer("Time","ReadGraph");
   readTimer.start();
   algo.readGraph(graph);
   readTimer.stop();
-  std::cout << "Read the graph in " << readTimer.get_usec() << "us\n";
+  std::cout << "Read the graph in " << readTimer.get() << "ms\n";
   std::cout << "Read " << graph.size() << " nodes\n";
+
+  galois::StatTimer T("Time", "LABELPROP_MAIN");
+  T.start();
 
   initialize(graph);
 
@@ -719,8 +722,7 @@ void run() {
                        galois::runtime::pagePoolSize());
   galois::reportPageAlloc("MeminfoPre");
 
-  galois::StatTimer T;
-  T.start();
+
   algo(graph);
   T.stop();
 
@@ -736,6 +738,7 @@ void run() {
 }
 
 int main(int argc, char** argv) {
+  galois::_flexograph_profile::MemoryCounter _memory_counter;
   galois::SharedMemSys G;
   LonestarStart(argc, argv, name, desc, url);
 

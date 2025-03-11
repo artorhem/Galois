@@ -389,6 +389,7 @@ void runAlgo(Graph& graph, const GNode& source) {
 }
 
 int main(int argc, char** argv) {
+  galois::_flexograph_profile::MemoryCounter _memory_counter;
   galois::SharedMemSys G;
   LonestarStart(argc, argv, name, desc, url);
 
@@ -396,11 +397,11 @@ int main(int argc, char** argv) {
   GNode source, report;
 
   std::cout << "Reading from file: " << filename << std::endl;
-  galois::StatTimer readTime("GraphReadingTime");
+  galois::StatTimer readTime("Time","ReadGraph");
   readTime.start();
   galois::graphs::readGraph(graph, filename);
   readTime.stop();
-  std::cout <<"Read time: " << readTime.get_usec() << "us\n";
+  std::cout <<"Read time: " << readTime.get() << "ms\n";
   std::cout << "Read " << graph.size() << " nodes, " << graph.sizeEdges()
             << " edges" << std::endl;
 
@@ -411,6 +412,8 @@ int main(int argc, char** argv) {
     abort();
   }
 
+  galois::StatTimer Tmain("Time","BFS_MAIN");
+  Tmain.start();
   auto it = graph.begin();
   std::advance(it, startNode);
   source = *it;
@@ -434,9 +437,6 @@ int main(int argc, char** argv) {
             << (bool(execution) ? "PARALLEL" : "SERIAL") << " execution "
             << std::endl;
 
-  galois::StatTimer Tmain;
-  Tmain.start();
-
   if (execution == SERIAL) {
     runAlgo<false>(graph, source);
   } else if (execution == PARALLEL) {
@@ -446,8 +446,6 @@ int main(int argc, char** argv) {
               << std::endl;
     std::abort();
   }
-
-  Tmain.stop();
 
   galois::reportPageAlloc("MeminfoPost");
 
@@ -484,6 +482,8 @@ int main(int argc, char** argv) {
   galois::gInfo("# visited nodes is ", rVisitedNode);
   galois::gInfo("Max distance is ", rMaxDistance);
   galois::gInfo("Sum of visited distances is ", rDistanceSum);
+
+  Tmain.stop();
 
   if (!skipVerify) {
     if (BFS::verify(graph, source)) {

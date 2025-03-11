@@ -228,16 +228,16 @@ void computePRTopological(Graph& graph) {
 }
 
 void prTopological(Graph& graph) {
+  galois::StatTimer prTimer("Time", "PAGERANK_MAIN");
+  prTimer.start();
   initNodeDataTopological(graph);
   computeOutDeg(graph);
-  galois::StatTimer prTimer;
-  prTimer.start();
   computePRTopological(graph);
   prTimer.stop();
 }
 
 void prResidual(Graph& graph) {
-  galois::StatTimer prTimer("PageRankTime");
+  galois::StatTimer prTimer("Time", "PAGERANK_MAIN");
   prTimer.start();
   DeltaArray delta;
   delta.allocateInterleaved(graph.size());
@@ -251,10 +251,11 @@ void prResidual(Graph& graph) {
 }
 
 int main(int argc, char** argv) {
+  galois::_flexograph_profile::MemoryCounter _memory_counter;
   galois::SharedMemSys G;
   LonestarStart(argc, argv, name, desc, url);
 
-  galois::StatTimer overheadTime("OverheadTime");
+  galois::StatTimer overheadTime("Time","TotalTime");
   overheadTime.start();
 
   Graph transposeGraph;
@@ -263,11 +264,11 @@ int main(int argc, char** argv) {
             << "WARNING: this program assumes that " << filename
             << " contains transposed representation\n\n"
             << "Reading graph: " << filename << std::endl;
-  galois::StatTimer readTime("GraphReadTime");
+  galois::StatTimer readTime("Time","ReadGraph");
   readTime.start();
   galois::graphs::readGraph(transposeGraph, filename);
   readTime.stop();
-  std::cout << "Read time: " << readTime.get_usec() << "us\n";
+  std::cout << "Read time: " << readTime.get() << "ms\n";
   std::cout << "Read " << transposeGraph.size() << " nodes, "
             << transposeGraph.sizeEdges() << " edges\n";
 

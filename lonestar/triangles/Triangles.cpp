@@ -409,12 +409,13 @@ void readGraph(Graph& graph) {
 }
 
 int main(int argc, char** argv) {
+  galois::_flexograph_profile::MemoryCounter _memory_counter;
   galois::SharedMemSys G;
   LonestarStart(argc, argv, name, desc, url);
 
   Graph graph;
 
-  galois::StatTimer Tinitial("GraphReadingTime");
+  galois::StatTimer Tinitial("Time","ReadGraph");
   Tinitial.start();
   readGraph(graph);
   Tinitial.stop();
@@ -423,7 +424,7 @@ int main(int argc, char** argv) {
                                     galois::runtime::pagePoolSize());
   galois::reportPageAlloc("MeminfoPre");
 
-  galois::StatTimer T;
+  galois::StatTimer T("Time","ORDEREDCOUNT_MAIN");
   T.start();
   // case by case preAlloc to avoid allocating unnecessarily
   switch (algo) {
